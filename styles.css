@@ -1,0 +1,1461 @@
+/*
+   Usa dois pseudo-elementos para separar o blur da imagem e o escurecimento uniforme:
+   ::before — imagem de fundo com blur
+   ::after  — camada preta sólida sem blur
+*/
+
+.carousel-container:fullscreen .video-title,
+.carousel-container:fullscreen .image-title-visible {
+    display: block;
+    position: absolute !important;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1003;
+    background: transparent;
+    color: #fff;
+    font-size: 1.3rem;
+    text-align: center;
+    font-weight: 600;
+    padding: 0.4rem 0 0.7rem 0;
+    letter-spacing: 0.01em;
+    text-shadow: 1px 1px 8px #000;
+    pointer-events: none;
+}
+.carousel-container:fullscreen .video-title {
+    display: block !important;
+    position: absolute !important;
+    top: 0;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1003;
+    background: transparent;
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 600;
+    padding: 0.4rem 0 0.7rem 0;
+    letter-spacing: 0.01em;
+    text-shadow: 1px 1px 8px #000;
+    pointer-events: none;
+}
+.timeline-thumbnail {
+    overflow: visible !important;
+    position: absolute !important;
+    bottom: calc(100% + 18px);
+}
+.timeline-thumbnail .preview-time {
+    display: block;
+    visibility: visible;
+    opacity: 1;
+    z-index: 1002;
+    position: absolute;
+    left: 50%;
+    top: auto;
+    bottom: -28px;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 13px;
+    border-radius: 8px;
+    pointer-events: none;
+    white-space: nowrap;
+    text-shadow: none;
+    background: rgb(0, 0, 0);
+    min-width: 44px;
+    margin: 0;
+    line-height: 1.2;
+    text-align: center;
+}
+/* Garante que o tempo de pré-visualização da miniatura fique sempre visível */
+/* Oculta o título do vídeo por padrão, exibe apenas em tela cheia */
+.video-title {
+    display: none;
+}
+.show-title-fullscreen .video-title {
+    display: block;
+}
+/* Aparência do botão de configurações (#settings-btn) */
+#settings-btn {
+    background-color: transparent;
+    color: var(--color-bg-invert); /* text-white */
+    border-radius: 5px; /* rounded-full */
+    padding: 0.75rem; /* p-3 */
+    box-shadow: none;
+    transition-property: transform;
+    transition-duration: 200ms;
+    outline: none;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+#settings-btn:hover {
+    background-color: transparent;
+    transform: scale(1.10);
+}
+#settings-btn:focus {
+    outline: none;
+}
+/* Organizei a aparência do código, ajustando a indentação e removendo espaços desnecessários */
+:root {
+    --color-bg-dark: rgb(17 24 39);
+    --color-bg-light: rgb(243 244 246);
+    --color-bg: var(--color-bg-light);
+    --color-text: rgb(17 24 39);
+    --color-panel-bg: rgb(255 255 255);
+    --bg-color: #f9f9f9;
+    --text-color: #333;
+}
+
+.download-btn {
+    justify-self: flex-end;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: auto;
+    vertical-align: middle;
+    text-decoration: none;
+    background: transparent;
+    color: #fff;
+    border: 1.5px solid #fff;
+    border-radius: 5px;
+    padding: 0.22em 0.85em 0.18em 0.85em;
+    font-size: 0.89rem;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: none;
+    text-align: center;
+    margin-bottom: 6px;
+    min-height: 28px;
+}
+
+.download-btn:hover, .download-btn:focus {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+    outline: none;
+}
+
+/* Remove estilos de SVG caso ainda existam */
+.download-btn svg {
+    width: 1.2em;
+    height: 1.2em;
+    fill: currentColor;
+    margin-right: 0.4em;
+    vertical-align: middle;
+}
+
+.download-btn-label {
+    display: inline;
+    vertical-align: middle;
+    font-size: 0.87rem;
+    font-weight: 500;
+    color: inherit;
+    white-space: nowrap;
+}
+
+html.theme-light {
+    --color-bg: var(--color-bg-light);
+    --color-text: rgb(17 24 39);
+    --color-panel-bg: rgb(255 255 255);
+    --color-accent: #ffffff; /* Padrão Branco no modo claro */
+}
+
+html.theme-dark {
+    --color-bg: var(--color-bg-dark);
+    --color-text: rgb(255 255 255);
+    --color-panel-bg: rgb(33, 33, 33);
+    --color-accent: #ffffff; /* Padrão Branco no modo escuro */
+}
+
+html {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+    overflow-x: hidden;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@keyframes glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 3px var(--color-accent));
+    }
+    50% {
+        filter: drop-shadow(0 0 10px var(--color-accent));
+    }
+}
+
+.glowing {
+    animation: glow 2s infinite ease-in-out;
+}
+
+.carousel-container {
+    overflow: visible;
+    position: relative;
+    background-color:  var(--color-bg);
+    transition: all 0.3s ease-in-out;
+    perspective: 1000px;
+}
+
+.carousel-container:fullscreen{
+    background-color: black;
+}
+
+.carousel-slides.transitioning-fullscreen {
+    visibility: hidden;
+}   
+
+/* BLUR */
+span, .carousel-item .custom-controls, .carousel-item .carousel-pagination, .carousel-item .video-title, .prev-button, .next-button, h4, h3, label, code {
+    filter: blur(0.5px);
+}
+
+.carousel-slides,
+.carousel-item,
+.summary-inner-wrapper {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+.carousel-slides {
+    transform-style: preserve-3d;
+}
+
+.carousel-item {
+    opacity: 0.22; /*OPACIDADE DO VIZINHO*/
+    transition: opacity 0.5s ease;
+    padding: 0;
+    transform-style: preserve-3d;
+    --blur-sat: 0;
+}
+
+
+.carousel-item.active-slide {
+    opacity: 1;
+    --blur-sat: 1;
+}
+
+.carousel-item .content-wrapper {
+    transform: translateZ(-400px) scale(0.9);
+    transition: transform 0.5s ease;
+}
+
+.carousel-item.active-slide .content-wrapper {
+    transform: translateZ(0) scale(1);
+}
+
+.carousel-item .media-container {
+    transition: filter 0.5s ease;
+    filter: blur(1px) brightness(0.8);
+}
+
+html.theme-dark .media-container {
+    filter: blur(1px) brightness(1.5) contrast(0.4);
+}
+
+.carousel-item.active-slide .media-container {
+    filter: blur(0);
+}
+
+.carousel-item:not(.active-slide) .carousel-pagination {
+    opacity: 0;
+    visibility: hidden;
+}
+
+h2 {
+    filter: blur(0.6px);
+}
+
+video, img {
+    filter: blur(0.5px);
+}
+
+video {
+    width: 100%;
+}
+
+.carousel-item .video-title {
+    text-shadow: 1px 1px 5px #000000;
+}
+
+/* ===== CSS ADICIONADO ===== */
+.media-container {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease;
+    will-change: filter; /* Otimização de performance para filtros (blur) */
+}
+/* Garante que o container de mídia ocupe todo o espaço do content-wrapper
+   para que max-height:100% nas imagens funcione corretamente. */
+.content-wrapper > .media-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* Garante que a mídia fique abaixo do gradiente/blur e preserve aspecto
+   Usamos max-width / max-height para evitar que imagens verticais sejam
+   esticadas ou cortadas quando o container tem aspect-ratio fixo. */
+.media-container > video,
+.media-container > img {
+    position: relative;
+    z-index: 1;
+    object-fit: contain;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    display: block;
+}
+
+/* MODO: preenchido (cropped) - padrão visual do carrossel. Quando ativo,
+   o media-container ocupa todo o content-wrapper e o conteúdo usa object-fit: cover
+   para preencher (pode ser recortado). O overflow hidden garante que o blur/gradiente
+   continue a aplicar corretamente. */
+.media-container.fill-mode {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Sobreposição de cor baseada no tema para slides inativos */
+.theme-overlay {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-accent-overlay, var(--color-accent));
+    mix-blend-mode: color;
+    opacity: var(--overlay-opacity, 1);
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    z-index: 2;
+    border-radius: inherit;
+}
+
+.media-container.fill-mode > img,
+.media-container.fill-mode > video {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+/* MODO: ajustado (contain) — o media-container é redimensionado para o tamanho da mídia
+   (evita problemas com blur), e o conteúdo usa object-fit: contain. */
+.media-container.fit-mode > img,
+.media-container.fit-mode > video {
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
+}
+
+
+.media-container.apply-vertical-fade {
+    mask-image: linear-gradient(to bottom, transparent 0%, black 1.0%, black 99%, transparent 100%);
+}
+
+.media-container.apply-horizontal-fade {
+    mask-image: linear-gradient(to right, transparent 0%, black 0.5%, black 99.5%, transparent 100%);
+}
+
+/* Aplica o gradiente vertical quando esta classe está presente 
+
+.media-container.apply-vertical-fade::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--fade-gradient, linear-gradient(to bottom, black 0%, transparent 1.1%), linear-gradient(to top, black 0%, transparent 1.1%));
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* 2. ADICIONE esta nova regra para o fade horizontal 
+.media-container.apply-horizontal-fade::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--fade-gradient, linear-gradient(to right, black 0px, transparent 5px), linear-gradient(to left, black 0px, transparent 5px));
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* Garante que o slide ativo não tenha a sobreposição de cor */
+.carousel-item.active-slide {
+    --overlay-opacity: 0;
+}
+/* ===== FIM DO CSS ADICIONADO ===== 
+.carousel-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+}*/
+
+.carousel-container {
+}
+
+/* FADE LATERAL DO CARROSSEL */
+.carousel-container::before,
+.carousel-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 20;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+
+.carousel-container::before {
+    right: 110%;
+    background: linear-gradient(to left, transparent, var(--color-bg) 200px);
+}
+
+.carousel-container::after {
+    left: 110%;
+    background: linear-gradient(to right, transparent, var(--color-bg) 200px);
+}
+
+.carousel-container:fullscreen::before,
+.carousel-container:fullscreen::after {
+    content: none;
+}
+
+.carousel-container:fullscreen::after {
+    content: none;
+}
+
+.carousel-container:fullscreen {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+/* FIM BLUR */
+.carousel-container:fullscreen .media-container video,
+.carousel-container:fullscreen .media-container > video,
+.carousel-container:fullscreen .media-container > img {
+    object-fit: contain;
+    position: relative;
+    z-index: 1;
+}
+
+.carousel-container:fullscreen .media-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Garante que vídeo e imagem ocupem toda a tela no fullscreen */
+.carousel-container:fullscreen .media-container,
+.carousel-container:-webkit-full-screen,
+.carousel-container:-moz-full-screen,
+.carousel-container:-ms-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-container:fullscreen .carousel-slides,
+.carousel-container:fullscreen .carousel-item,
+.carousel-container:fullscreen .content-wrapper {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.carousel-container:fullscreen.fade-mode .carousel-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    z-index: 1;
+}
+
+.carousel-container:fullscreen.fade-mode .carousel-item.active-slide {
+    opacity: 1;
+    z-index: 10;
+}
+
+.carousel-container:fullscreen .content-wrapper {
+    aspect-ratio: auto;
+    border-radius: 0;
+}
+
+.content-wrapper {
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj4KICA8ZGVmcz4KICAgIDxmaWx0ZXIgaWQ9ImIiIHg9Ii01MCUiIHk9Ii01MCUiIHdpZHRoPSIyMDAlIiBoZWlnaHQ9IjIwMCUiPgogICAgICA8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIwLjEiIC8+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CiAgPHJlY3QgeD0iMC4zIiB5PSIwLjUiIHdpZHRoPSI5OS40IiBoZWlnaHQ9Ijk5IiByeD0iMC43IiByeT0iMSIgZmlsbD0id2hpdGUiIGZpbHRlcj0idXJsKCNiKSIgLz4KPC9zdmc+");
+    border-radius: 12px;
+}
+
+
+/*
+    Bloco .content-wrapper::after:
+    Este pseudo-elemento cria uma camada de fundo desfocada atrás do conteúdo principal do wrapper.
+    Ele pode exibir uma cor média (var(--media-blur-bg)) e/ou uma imagem (var(--media-blur-img)), ambas aplicadas com um forte desfoque.
+    Usado para dar efeito de "imagem de fundo desfocada" no carrossel, sem interferir no conteúdo em primeiro plano.
+*/
+
+
+.carousel-container:fullscreen .content-wrapper::before{
+    opacity: 0.3;
+}
+
+.carousel-container:fullscreen .content-wrapper::after{
+    background: var(--color-bg-dark-media);
+}
+
+
+
+.content-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-color: var(--color-bg);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
+    filter: brightness(0.65);
+    opacity: 0.6; /* OPACIDADE AO BLUR */
+    transition: background-color 0.3s, opacity 0.3s;
+}
+
+html.theme-dark .content-wrapper::after {
+    filter: brightness(1.2);
+    opacity: 0.4;
+}
+
+html.theme-dark .content-wrapper::before {
+    filter: blur(60px) opacity(1);
+}
+
+
+
+/* pode inverter os valores after-before para ir testando a aparência do fullscreen */
+.content-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    z-index: 0;
+    pointer-events: none;
+    background: var(--media-blur-img);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(60px) opacity(1) brightness(1.1) saturate(var(--blur-sat, 1));
+    transition: background 0.3s, opacity 0.3s, filter 0.1s ease;
+}
+
+
+/* Regra genérica para elementos <video> e <img> fora do contexto específico
+   do carrossel; evita forçar 100% de largura/altura globalmente. */
+video, img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.blur-video-bg {
+    filter: blur(60px) opacity(1) brightness(1.1) saturate(var(--blur-sat, 1));
+    transition: filter 0.5s ease, opacity 0.3s ease;
+}
+
+.carousel-container:fullscreen .blur-video-bg {
+    opacity: 0.3;
+}
+
+.custom-controls, .video-title {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    z-index: 21;
+    color: white;
+}
+
+/* Hover nos botões do HUD */
+.custom-controls button:hover {
+    color: var(--color-accent);
+}
+
+.custom-controls {
+    bottom: 0;
+    cursor: default;
+    display: grid;
+}
+
+.video-title {
+    top: 0;
+    cursor: pointer;
+    font-size: 25px;
+}
+
+/* AJUSTE: Paginação agora é sempre visível por padrão */
+.carousel-pagination {
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    z-index: 21;
+    color: white;
+    transition: opacity 0.3s ease, padding-right 0.2s ease;
+    cursor: pointer;
+    filter: none !important; /* Remove blur permanentemente para evitar bugs visuais na animação */
+}
+
+.comment-icon {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    justify-self: flex-end;
+    color: white;
+    z-index: 22;
+    right: 1.25rem;
+    bottom: 5rem;
+}
+
+.prev-button, .next-button {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+/* Para Não ficar dando glitch de pixel quando arrastar */
+.carousel-container.controls-visible .active-slide .custom-controls,
+.carousel-container.controls-visible .active-slide .video-title,
+.carousel-container.controls-visible .active-slide .comment-icon,
+.carousel-container.controls-visible .prev-button,
+.carousel-container.controls-visible .next-button,
+.carousel-container {
+    opacity: 1;
+    visibility: visible;
+}
+
+.image-title-visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.title-hidden-by-user {
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+.content-wrapper.hide-cursor,
+.content-wrapper.hide-cursor * {
+    cursor: none;
+}
+
+.control-shadow {
+    filter: drop-shadow(0 1px 3px rgb(0 0 0 / 0.7));
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 3px;
+    background: none;
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+    /*transition: background-size 0.2s ease-out;*/
+    /* O gradiente é aplicado dinamicamente via JS */
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+    opacity: 1;
+}
+
+input[type="range"]::-moz-range-thumb {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+input[type="range"]:hover::-moz-range-thumb {
+    opacity: 1;
+}
+input[type="range"]::-ms-thumb {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+input[type="range"]:hover::-ms-thumb {
+    opacity: 1;
+}
+
+.volume-slider {
+    width: 0px;
+    opacity: 0;
+    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.volume-control:hover .volume-slider {
+    width: 80px;
+    opacity: 1;
+}
+
+.timeline-thumbnail {
+    position: absolute;
+    bottom: calc(100% + 18px);
+    border: 2px solid white;
+    border-radius: 4px;
+    background-color: black;
+    width: 160px;
+    display: none;
+    pointer-events: none;
+    transition: transform 0.1s ease;
+    z-index: 25;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black; /* Garante que o fundo seja consistente */
+    overflow: hidden; /* Remove qualquer conteúdo que ultrapasse os limites */
+}
+
+.timeline-thumbnail canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+
+
+.carousel-summary-container {
+    overflow: hidden;
+    position: relative;
+}
+
+.carousel-summary-container::before,
+.carousel-summary-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 75px;
+    z-index: 2;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.carousel-summary-container::before {
+    left: 0;
+    background: linear-gradient(to right, var(--color-bg), transparent);
+}
+
+.carousel-summary-container::after {
+    right: 0;
+    background: linear-gradient(to left, var(--color-bg), transparent);
+}
+
+.carousel-summary-container.hide-mask-left::before {
+    opacity: 0;
+}
+
+.carousel-summary-container.hide-mask-right::after {
+    opacity: 0;
+}
+
+.summary-inner-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    /* Removido: transition aqui, pois só deve ser aplicado via .animated */
+}
+
+.summary-inner-wrapper.animated {
+    transition: transform 0.5s cubic-bezier(.4, .1, .2, 1);
+    will-change: transform;
+}
+
+.summary-title {
+    will-change: transform, opacity;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 18px;
+    opacity: 0.55;
+    display: inline-block;
+    position: relative;
+    padding: .15rem .65rem;
+    margin: 0 .1rem;
+    border-radius: 9999px;
+    line-height: 1.15;
+    transition: background-color .3s ease, opacity .3s ease, color .3s ease, font-weight .3s ease;
+        bottom: 0;
+}
+
+.summary-title-inner {
+    display: inline-block;
+    transform-origin: center;
+    transition: none;
+}
+
+.summary-title.active-summary {
+    opacity: 1;
+    font-weight: 600;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.summary-title.active-summary .summary-title-inner {
+    transform: none;
+}
+
+/* AJUSTE: Comentário posicionado na direita */
+.comment-box {
+    margin-right: 40px;
+    position: absolute;
+    bottom: 65px;
+    right: 1rem;
+    left: auto;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    max-height: 40%;
+    width: 90%;
+    max-width: 380px;
+    overflow-y: auto;
+    z-index: 25;
+    color: white;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    /* Scrollbar customizada */
+    scrollbar-width: thin;
+    scrollbar-color: #888 #222;
+    user-select: text;
+    cursor: text;
+}
+
+.comment-box h5 {
+    cursor: move;
+    margin: -1rem -1rem 0.5rem -1rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.comment-box::-webkit-scrollbar {
+    width: 8px;
+    background: #222;
+    border-radius: 8px;
+}
+.comment-box::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 8px;
+    border: 2px solid #222;
+}
+.comment-box::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+.comment-box.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* JANELA DE SUMÁRIO (POPUP) */
+.summary-popup {
+    position: absolute;
+    top: 60px;
+    max-height: calc(100% - 140px); /* Altura flexível com limite máximo (60px topo + 80px margem inferior) */
+    right: 20px;
+    width: 280px;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    color: white;
+    user-select: none;
+    cursor: default;
+}
+
+.summary-popup.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* VARIAÇÃO: Sumário Centralizado (quando aberto pelo título) */
+.summary-popup.center-aligned {
+    right: auto;
+    left: 50%;
+    top: 0; /* Mais perto do título */
+    max-height: calc(100% - 80px); /* Ajuste do limite máximo quando centralizado */
+    transform: translateX(-50%) translateY(10px);
+}
+
+.summary-popup.center-aligned.visible {
+    transform: translateX(-50%) translateY(0);
+}
+
+.summary-popup-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-popup-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+    list-style: none;
+    margin: 0;
+    min-height: 0; /* Garante que o scroll funcione corretamente em flexbox */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.1);
+}
+
+.summary-popup-list::-webkit-scrollbar {
+    width: 6px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.summary-popup-list::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.summary-popup-list::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.summary-popup-list li {
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.summary-popup-list li:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--color-accent);
+}
+
+.summary-popup-list li.active {
+    background: rgba(255,255,255,0.15);
+    border-left-color: var(--color-accent);
+    font-weight: 600;
+}
+
+.close-summary-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+/* SOLUÇÃO DEFINITIVA: Simplifica o layout durante a transição de tela cheia */
+.carousel-container.fullscreen-transition-active .carousel-slides {
+    transform: none !important;
+    display: block;
+}
+
+.carousel-container.fullscreen-transition-active .carousel-item:not(.active-slide) {
+    display: none;
+}
+
+.fit-mode-toggle{
+    height: 20px;
+}
+
+.carousel-container.controls-visible .fit-mode-toggle {
+    cursor: col-resize !important;
+}
+
+.carousel-container.controls-visible .carousel-item[data-type="image"] .custom-controls {
+    cursor: col-resize !important;
+}
+
+.speed-btn{
+    font-size: 16px;
+}
+
+.playback-mode-btn svg, .play-pause-btn svg {
+    width: 1.75rem; /* 28px */
+    height: 1.75rem; /* 28px */
+}
+
+/* Durante redimensionamento da janela, desabilita transições para evitar tremores */
+body.is-resizing .carousel-slides,
+body.is-resizing .summary-inner-wrapper {
+    transition: none !important;
+}
+
+/* Mostrar controles de fullscreen no mobile */
+@media (hover: none) and (pointer: coarse) {
+  .content-wrapper .custom-controls {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+/* NO BLUR MODE */
+html.no-blur span,
+html.no-blur .carousel-item .custom-controls,
+html.no-blur .carousel-item .carousel-pagination,
+html.no-blur .carousel-item .video-title,
+html.no-blur .prev-button,
+html.no-blur .next-button,
+html.no-blur h4,
+html.no-blur h3,
+html.no-blur label,
+html.no-blur code,
+html.no-blur h2,
+html.no-blur video:not(.blur-video-bg),
+html.no-blur img {
+    filter: none !important;
+}
+html.no-blur .media-container.apply-vertical-fade,
+html.no-blur .media-container.apply-horizontal-fade {
+    mask-image: none !important;
+}
+html.no-blur .content-wrapper {
+    mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj4KICA8cmVjdCB4PSIwLjEiIHk9IjAuMSIgd2lkdGg9Ijk5LjgiIGhlaWdodD0iOTkuOCIgcng9IjEiIHJ5PSIxIiBmaWxsPSJ3aGl0ZSIgLz4KPC9zdmc+");
+}
+
+html.no-blur .content-wrapper::before {
+    filter: blur(60px) opacity(1) brightness(1) saturate(var(--blur-sat, 1)) !important;
+}
+
+/* --- FONT MODES (3 Variants each) --- */
+
+/* SANS */
+html.font-sans-1 body { font-family: 'Inter', sans-serif; }
+html.font-sans-2 body { font-family: 'Roboto', sans-serif; }
+html.font-sans-3 body { font-family: 'Open Sans', sans-serif; }
+
+/* SERIF */
+html.font-serif-1 body {
+    font-family: 'Crimson Text', serif;
+}
+html.font-serif-2 body { font-family: 'Merriweather', serif; }
+html.font-serif-3 body { font-family: 'Playfair Display', serif; }
+
+/* MONO */
+html.font-mono-1 body {
+    font-family: 'Courier Prime', monospace;
+}
+html.font-mono-2 body { font-family: 'Fira Code', monospace; }
+html.font-mono-3 body { font-family: 'Inconsolata', monospace; }
+
+/* HANDWRITING */
+html.font-hand-1 body {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.15rem;
+}
+/* Ajustes específicos para manter legibilidade sem quebrar layout */
+html.font-hand-1 .text-xs { font-size: 0.85rem; }
+html.font-hand-1 .text-sm { font-size: 1rem; }
+html.font-hand-1 .text-base { font-size: 1.15rem; }
+html.font-hand-1 .text-lg { font-size: 1.3rem; }
+html.font-hand-1 .text-xl { font-size: 1.5rem; }
+html.font-hand-1 .text-2xl { font-size: 1.8rem; }
+html.font-hand-1 .video-title { font-size: 1.6rem; }
+html.font-hand-1 .summary-title { font-size: 21px; }
+
+html.font-hand-2 body { 
+    font-family: 'Patrick Hand', cursive; 
+    font-size: 1.1rem;
+}
+html.font-hand-2 .text-xs { font-size: 0.8rem; }
+html.font-hand-2 .text-sm { font-size: 0.95rem; }
+html.font-hand-2 .text-base { font-size: 1.1rem; }
+html.font-hand-2 .video-title { font-size: 1.45rem; }
+html.font-hand-2 .summary-title { font-size: 20px; }
+
+html.font-hand-3 body { 
+    font-family: 'Caveat', cursive; 
+    font-size: 1.25rem;
+}
+html.font-hand-3 .text-xs { font-size: 0.95rem; }
+html.font-hand-3 .text-sm { font-size: 1.1rem; }
+html.font-hand-3 .text-base { font-size: 1.25rem; }
+html.font-hand-3 .video-title { font-size: 1.65rem; }
+html.font-hand-3 .summary-title { font-size: 23px; }
+
+/* DECORATIVE */
+html.font-decor-1 body {
+    font-family: 'Cinzel', serif;
+}
+html.font-decor-2 body { font-family: 'Mountains of Christmas', cursive; }
+html.font-decor-3 body { font-family: 'Lobster', cursive; }
+
+.font-btn.active {
+    opacity: 1 !important;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* COLOR SLIDERS */
+input[type=range].hue-slider {
+    height: 12px !important;
+    border: 1px solid rgba(160, 160, 160, 0.8);
+}
+
+#hue-slider-dark {
+    background: linear-gradient(to right, hsl(0, 35%, 51%), hsl(60, 35%, 51%), hsl(120, 35%, 51%), hsl(180, 35%, 51%), hsl(240, 35%, 51%), hsl(300, 35%, 51%), hsl(360, 35%, 51%)) !important;
+}
+
+#hue-slider-light {
+    background: linear-gradient(to right, hsl(0, 40%, 52%), hsl(60, 40%, 52%), hsl(120, 40%, 52%), hsl(180, 40%, 52%), hsl(240, 40%, 52%), hsl(300, 40%, 52%), hsl(360, 40%, 52%)) !important;
+}
+
+input[type=range].hue-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: 2px solid white;
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    box-shadow: 0 0 2px rgba(0,0,0,0.5);
+    opacity: 1;
+}
+
+/* Oculta a bolinha quando a classe thumb-hidden estiver presente */
+input[type=range].hue-slider.thumb-hidden::-webkit-slider-thumb {
+    opacity: 0;
+}
+input[type=range].hue-slider.thumb-hidden::-moz-range-thumb {
+    opacity: 0;
+}
+
+/* Melhora visibilidade da bolinha no modo claro */
+#hue-slider-light::-webkit-slider-thumb {
+    border-color: white;
+    box-shadow: 0 0 3px rgba(0,0,0,0.5);
+}
+
+.settings-panel {
+    background-color: color-mix(in srgb, var(--color-bg), transparent 10%);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid color-mix(in srgb, var(--color-text), transparent 85%);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    color: var(--color-text);
+    max-height: 85vh;
+    overflow-y: auto;
+    /* Custom Scrollbar for Settings Panel */
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-text), transparent 70%) transparent;
+}
+
+.settings-panel::-webkit-scrollbar {
+    width: 10px;
+}
+
+.settings-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.settings-panel::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--color-text), transparent 80%);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+/* THEME AWARE TOGGLES */
+input[type="checkbox"].peer:checked + div {
+    background-color: var(--color-text) !important;
+}
+
+input[type="checkbox"].peer:checked + div::after {
+    background-color: var(--color-bg) !important;
+    border-color: var(--color-bg) !important;
+}
+
+input[type="checkbox"].peer + div {
+    background-color: color-mix(in srgb, var(--color-text), transparent 60%) !important;
+}
+
+input[type="checkbox"].peer + div::after {
+    background-color: var(--color-bg) !important;
+    border-color: var(--color-bg) !important;
+}
+
+/* MASCOT LUQUINHAS */
+#luquinhas-mascot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 80px;
+    height: 80px;
+    z-index: 1000;
+    cursor: pointer;
+}
+
+.luquinhas-body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+#luquinhas-mascot:hover .luquinhas-body {
+    transform: scale(1.1) rotate(-5deg);
+}
+
+.luquinhas-bubble {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    transform: none;
+    margin-bottom: 15px;
+    width: 250px;
+    background-color: var(--color-panel-bg);
+    color: var(--color-text);
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+.luquinhas-bubble.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-10px);
+    pointer-events: auto;
+}
+
+/* Speech bubble tail */
+.luquinhas-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    right: 30px;
+    width: 20px;
+    height: 20px;
+    background-color: var(--color-panel-bg);
+    transform: rotate(45deg);
+    z-index: -1;
+}
+
+.luquinhas-bubble .bubble-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+}
+
+.luquinhas-bubble .close-bubble-btn {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--color-text);
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.luquinhas-bubble .close-bubble-btn:hover {
+    opacity: 1;
+}
+
+.luquinhas-counter {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1001;
+    pointer-events: none;
+    transition: transform 0.2s ease;
+}
+
+/* SHARE TOOLTIP */
+.share-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px); /* Position above the button with some margin */
+    left: 50%;
+    background-color: #22c55e; /* green-500 */
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
+    z-index: 10;
+    transform: translateX(-50%) translateY(5px); /* Start slightly down */
+}
+
+.share-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0); /* Move up to final position */
+}
+
+/* Espaçamento entre galerias */
+div[id^="carousel-"] {
+    margin-bottom: 3rem;
+}
+
+/* INDICADORES DE CLIQUE (Título e Paginação) */
+div[id^="carousel-"] h2 {
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    cursor: pointer;
+    transition: none;
+}
+
+div[id^="carousel-"] h2::after,
+.carousel-pagination::after {
+    content: '';
+    position: absolute;
+    width: 0; 
+    height: 0; 
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid currentColor;
+    opacity: 0;
+    pointer-events: auto;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Ajustes específicos para o Título */
+div[id^="carousel-"] h2::after {
+    right: -22px;
+    top: 50%;
+    transform: translateY(-80%);
+}
+
+div[id^="carousel-"] h2:hover::after {
+    opacity: 0.8;
+    transform: translateY(-50%);
+}
+
+/* Ajustes específicos para a Paginação */
+.carousel-pagination {
+    transition: opacity 0.3s ease;
+}
+
+.carousel-pagination:hover {
+    padding-right: 30px;
+}
+
+.carousel-pagination::after {
+    right: 10px;
+    top: 50%;
+    transform: translateY(-80%);
+}
+
+.carousel-pagination:hover::after {
+    opacity: 0.8;
+    transform: translateY(-50%);
+}
+
+/* Correção de Cor do Painel de Configurações (Modo Claro) */
+html.theme-light .settings-panel .text-sm.opacity-80,
+html.theme-light .settings-panel .text-xs.opacity-70 {
+    opacity: 1; /* Remove opacidade que deixava o texto cinza */
+}
+
+html.theme-light .settings-panel .font-btn {
+    opacity: 0.6; /* Torna os botões de fonte inativos um pouco mais escuros */
+}
+html.theme-light .settings-panel .font-btn:hover,
+html.theme-light .settings-panel .font-btn.active {
+    opacity: 1;
+}
+
+html.theme-light .settings-panel button[id^="reset-"] {
+    color: rgb(17, 24, 39); /* Força a cor preta no botão de reset */
+}
